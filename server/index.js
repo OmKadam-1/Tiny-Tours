@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import express from "express";
 import connectDB from "./db.js";
 import User from "./models/User.js";
+import bcrypt from "bcryptjs"
 dotenv.config();
 
 const app = express();
@@ -57,6 +58,8 @@ if (existingUser) {
     data: null,
   });
 }
+const salt = bcrypt.genSaltSync(10);
+const encryptedPassword = bcrypt.hashSync(password, salt);
 
   const newUser =new User({
     name,
@@ -64,7 +67,7 @@ if (existingUser) {
     mobile,
     city,
     country,
-    password
+    password: encryptedPassword
   })
   try {
   const savedUser = await newUser.save();
@@ -101,10 +104,23 @@ if (!password) {
     data: null,
   });
 }
-const existingUser = await User.findOne({ email, password }).select("-password");
+const existingUser = await User.findOne({ email });
 ;
 
-if (existingUser) {
+if (!existingUser) {
+  return res.json({
+    success: false,
+    message: "User doesn't exist with this email, please sign up",
+    data: null,
+  });
+}
+const isPasswordCorrect = bcrypt.compareSync(password, existingUser.password);
+
+existingUser.password = undefined;
+
+
+
+if (isPasswordCorrect) {
   return res.json({
     success: true,
     message: "Login successful",
