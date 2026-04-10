@@ -12,6 +12,28 @@ app.use(cors());
 
 const PORT = process.env.PORT || 8080;
 
+const middleware1 = (req,res,next)=>{
+const { name, ismember } = req.body;
+console.log(`Hello, ${name}`);
+
+if (ismember) {
+  next();
+} else {
+  return res.json({
+    message: "Access denied. You must be a  member to proceed.",
+  });
+}
+}
+
+
+const testController = (req, res) => {
+  console.log("Test controller");
+  const random = Math.round(Math.random() * 100);
+
+  res.json({ message: "Test is working!", random });
+};
+
+app.post("/test",middleware1, testController);
 
 
 app.get("/", (req, res) => {
