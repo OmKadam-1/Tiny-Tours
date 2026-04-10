@@ -1,0 +1,29 @@
+import Contact from "../models/Contact";
+
+const postContact = async (req, res) => {
+  const { name, email, phone, address, message } = req.body;
+
+  try {
+    const newContact = new Contact({
+      name,
+      email,
+      phone,
+      address,
+      message,
+      createdBy: req.user.id,
+    });
+
+    const savedContact = await newContact.save();
+
+    return res.json({
+      success: true,
+      message: "Message sent successfully",
+      data: savedContact,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
