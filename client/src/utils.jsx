@@ -21,3 +21,11 @@ const getUserData = () => {
 
   return JSON.parse(userData);
 };
+
+const logoutUser = () => {
+  localStorage.clear();
+  toast.success("Logged out successfully!");
+  setTimeout(() => {
+    window.location.href = "/login";
+  }, 1500);
+};
