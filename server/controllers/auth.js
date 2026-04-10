@@ -75,3 +75,28 @@ const postLogin = async (req, res) => {
         message: "Invalid password",
       });
     }
+
+    
+    const jwtToken = jwt.sign(
+      { id: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    user.password = undefined; // hide password
+
+    return res.json({
+      success: true,
+      message: "Login successful",
+      jwtToken,
+      data: user,
+    });
+  } catch (error) {
+    return res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export { postSignup, postLogin };
