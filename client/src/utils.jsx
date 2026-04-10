@@ -29,3 +29,11 @@ const logoutUser = () => {
     window.location.href = "/login";
   }, 1500);
 };
+
+export {
+    setPageTitle,
+    isUserLoggedIn,
+    getUserJwtToken,
+    getUserData,
+    logoutUser,
+};
