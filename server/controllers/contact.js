@@ -27,3 +27,23 @@ const postContact = async (req, res) => {
     });
   }
 };
+
+const getContact = async (req, res) => {
+  try {
+    const contacts = await Contact.find({
+      createdBy: req.user.id,   
+    }).populate("createdBy", "email");
+
+    return res.json({
+      success: true,
+      data: contacts,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export { postContact, getContact };
