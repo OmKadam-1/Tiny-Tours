@@ -1,10 +1,29 @@
+import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import express from "express";
 import connectDB from "./db.js";
-import User from "./models/User.js";
-import bcrypt from "bcryptjs"
+import ImageKit from "@imagekit/nodejs";
+import { postContact, getContact } from "./controllers/contact.js";
+import { checkJWT } from "./middlewares/jwt.js";
+
+
 dotenv.config();
+
+//Routes
+import { getHome, getHealth } from "./controllers/health.js";
+import { postSignup, postLogin } from "./controllers/auth.js";
+import { getTours, postTours, putTours } from "./controllers/tours.js";
+
+//Middleware
+// import { checkJWT } from "./middleware/auth.js";
+
+
+const client = new ImageKit({
+  publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
+  privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
+  urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT,
+});
+
 
 const app = express();
 app.use(express.json());
@@ -12,153 +31,32 @@ app.use(cors());
 
 const PORT = process.env.PORT || 8080;
 
-const middleware1 = (req,res,next)=>{
-const { name, ismember } = req.body;
-console.log(`Hello, ${name}`);
-
-if (ismember) {
-  next();
-} else {
-  return res.json({
-    message: "Access denied. You must be a  member to proceed.",
-  });
-}
-}
+//health routes
+app.get("/", getHome);
+app.get("/health", getHealth);
 
 
-const testController = (req, res) => {
-  console.log("Test controller");
-  const random = Math.round(Math.random() * 100);
-
-  res.json({ message: "Test is working!", random });
-};
-
-app.post("/test",middleware1, testController);
-
-
-app.get("/", (req, res) => {
-  res.json({ message: "Welcome to Tiny Tours" });
+app.get('/auth', function (req, res) {
+    const { token, expire, signature } = client.helper.getAuthenticationParameters();
+    res.send({ token, expire, signature, publicKey: process.env.IMAGEKIT_PUBLIC_KEY });
 });
 
-app.get("/health", (req, res) => {
-  res.json({ status: "OK" });
-});
+// auth routes
+app.post("/signup", postSignup);
+app.post("/login", postLogin);
 
-app.post("/signup", async (req, res) => {
-  const {name, email, mobile, city, country, password} = req.body;
+// tours routes
+app.post("/tours", checkJWT, postTours);
+app.get("/tours", checkJWT, getTours);
+app.put("/tours/:id", checkJWT, putTours);
 
-  if (!name ) {
-  return res.json({
-    success: false,
-    message: "Name is  required",
-    data: null,
-  });
-}
+app.post("/api/contact", checkJWT, postContact);
 
-if (!email) {
-  return res.json({
-    success: false,
-    message: "Email is required",
-    data: null,
-  });
-}
-
-if (!mobile) {
-  return res.json({
-    success: false,
-    message: "Mobile number is required",
-    data: null,
-  });
-}
-
-const existingUser = await User.findOne({ email });
-
-if (existingUser) {
-  return res.json({
-    success: false,
-    message: "User with this email already exists",
-    data: null,
-  });
-}
-const salt = bcrypt.genSaltSync(10);
-const encryptedPassword = bcrypt.hashSync(password, salt);
-
-  const newUser =new User({
-    name,
-    email,
-    mobile,
-    city,
-    country,
-    password: encryptedPassword
-  })
-  try {
-  const savedUser = await newUser.save();
-
-  return res.json({
-    success: true,
-    message: "User registered successfully",
-    data: savedUser,
-  });
-} catch (error) {
-  return res.json({
-    success: false,
-    message: `User registration failed: ${error.message}`,
-    data: null,
-  });
-}
-
-});
-
-app.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-
-  if (!email) {
-    return res.json({
-      success: false,
-      message: "Email is required",
-      data: null,
-    });
-  }
-if (!password) {
-  return res.json({
-    success: false,
-    message: "Password is required",
-    data: null,
-  });
-}
-const existingUser = await User.findOne({ email });
-;
-
-if (!existingUser) {
-  return res.json({
-    success: false,
-    message: "User doesn't exist with this email, please sign up",
-    data: null,
-  });
-}
-const isPasswordCorrect = bcrypt.compareSync(password, existingUser.password);
-
-existingUser.password = undefined;
+app.get("/api/contact" ,checkJWT, getContact)
 
 
 
-if (isPasswordCorrect) {
-  return res.json({
-    success: true,
-    message: "Login successful",
-    data: existingUser,
-  });
-}
-else {
-  return res.json({
-    success: false,
-    message: "Invalid email or password",
-    data: null,
-  });
-}
-  });
-
+connectDB();
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-  connectDB();
-});
+    console.log(`Serever is running on PORT ${PORT}`);
+}); 

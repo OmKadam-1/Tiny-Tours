@@ -8,6 +8,8 @@ import EditTour from "./views/EditTour.jsx";
 import Login from "./views/Login.jsx";
 import Signup from "./views/Signup.jsx";
 import Tours from "./views/Tours.jsx";
+import NewTour from "./views/NewTour.jsx";
+
 
 
 const root = createRoot(document.getElementById("root"));
@@ -16,12 +18,12 @@ root.render(
   <BrowserRouter>
     <Routes>
       <Route path="/" element={<Dashboard />} />
-      <Route path="/tours" element={<Tours />} />
-      <Route path="/tours/new" element={<EditTour />} />
-      <Route path="/tours/edit/:id" element={<EditTour />} />
-      <Route path="/contact" element={<Contact />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/tours" element={<Tours />} />
+      <Route path="/tours/new" element={<NewTour />} />
+      <Route path="/tours/edit" element={<EditTour />} />
+      <Route path="/contact" element={<Contact />} />
       
     
     </Routes>
