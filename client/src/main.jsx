@@ -9,6 +9,7 @@ import Login from "./views/Login.jsx";
 import Signup from "./views/Signup.jsx";
 import Tours from "./views/Tours.jsx";
 import NewTour from "./views/NewTour.jsx";
+import ReceivedContact from "./views/ReceivedContact.jsx"; 
 
 
 
@@ -24,6 +25,7 @@ root.render(
       <Route path="/tours/new" element={<NewTour />} />
       <Route path="/tours/edit" element={<EditTour />} />
       <Route path="/contact" element={<Contact />} />
+       <Route path="/recieved-contact" element={<ReceivedContact />} />
       
     
     </Routes>
