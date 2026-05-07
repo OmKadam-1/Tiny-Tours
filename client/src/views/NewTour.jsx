@@ -33,7 +33,9 @@ function NewTour() {
   const authenticator = async () => {
     try {
       // Perform the request to the upload authentication endpoint.
-      const response = await fetch`${import.meta.env.VITE_API_BASE_URL}/auth`;
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/auth`
+      );
       if (!response.ok) {
         // If the server response is not successful, extract the error text for debugging.
         const errorText = await response.text();
@@ -107,34 +109,34 @@ function NewTour() {
       }
     }
   };
- 
-const navigate = useNavigate();
 
-const addTour = async () => {
-  try {
-    const token = getUserJwtToken();
+  const navigate = useNavigate();
 
-    const response = await axios.post(
-     `${import.meta.env.VITE_API_BASE_URL}/tours`,
-      newTour,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+  const addTour = async () => {
+    try {
+      const token = getUserJwtToken();
+
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/tours`,
+        newTour,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        toast.success("Tour added successfully!");
+        navigate("/");
+      } else {
+        toast.error(response.data.message);
       }
-    );
 
-    if (response.data.success) {
-      toast.success("Tour added successfully!");
-      navigate("/"); 
-    } else {
-      toast.error(response.data.message);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Error");
     }
-
-  } catch (error) {
-    toast.error(error.response?.data?.message || "Error");
-  }
-};
+  };
 
   useEffect(() => {
     setPageTitle("Add Tour - TinyTours");
